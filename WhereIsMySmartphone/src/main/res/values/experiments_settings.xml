@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string-array name="sex">
+        <item>M</item>
+        <item>F</item>
+    </string-array>
+
+    <string-array name="age">
+        <item>5-10</item>
+        <item>11-15</item>
+        <item>16-20</item>
+        <item>21-25</item>
+        <item>26-30</item>
+        <item>31-35</item>
+        <item>36-40</item>
+        <item>41-45</item>
+        <item>46-50</item>
+        <item>51-55</item>
+        <item>56-60</item>
+        <item>60+</item>
+    </string-array>
+
+    <string-array name="height">
+        <item>1.20-1.30</item>
+        <item>1.31-1.40</item>
+        <item>1.41-1.50</item>
+        <item>1.51-1.60</item>
+        <item>1.61-1.70</item>
+        <item>1.71-1.80</item>
+        <item>1.81-1.90</item>
+        <item>1.91+</item>
+    </string-array>
+
+    <string-array name="shoes">
+        <item>Ginniche</item>
+        <item>Con tacco</item>
+    </string-array>
+
+    <string-array name="hand">
+        <item>Destra</item>
+        <item>Sinistra</item>
+    </string-array>
+
+    <string-array name="actions">
+        <item>Scale su</item>
+        <item>Scale giù</item>
+        <item>Fermo</item>
+        <item>Camminando</item>
+    </string-array>
+
+    <string-array name="origins">
+        <item>Mano</item>
+        <item>Chiamata</item>
+    </string-array>
+
+    <string-array name="destinations">
+        <item>Tasca pantaloni davanti</item>
+        <item>Tasca pantaloni dietro</item>
+        <item>Tasca giacca bassa</item>
+        <item>Tasca giacca alta</item>
+    </string-array>
+</resources>
