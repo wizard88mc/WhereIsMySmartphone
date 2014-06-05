@@ -3,7 +3,6 @@ package it.cs.unipd.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
-import android.provider.ContactsContract;
 
 import java.sql.SQLException;
 
@@ -28,6 +27,7 @@ public class DBAdapter {
     private final String KEY_rotationX = "rotationX";
     private final String KEY_rotationY = "rotationY";
     private final String KEY_rotationZ = "rotationZ";
+    private final String KEY_proximity = "proximity";
     private final String KEY_sex = "sex";
     private final String KEY_age = "age";
     private final String KEY_height = "height";
@@ -61,7 +61,7 @@ public class DBAdapter {
     }
 
     private ContentValues createContentValues(long timestamp, float x, float y, float z,
-            float rotationX, float rotationY, float rotationZ, String sex, String age,
+            float rotationX, float rotationY, float rotationZ, float proximity, String sex, String age,
             String height, String shoes, String hand, String action, String origin,
             String destination, int trunk) {
 
@@ -73,6 +73,7 @@ public class DBAdapter {
         values.put(KEY_rotationX, rotationX);
         values.put(KEY_rotationY, rotationY);
         values.put(KEY_rotationZ, rotationZ);
+        values.put(KEY_proximity, proximity);
         values.put(KEY_sex, sex);
         values.put(KEY_age, age);
         values.put(KEY_height, height);
@@ -121,19 +122,20 @@ public class DBAdapter {
     }
 
     public void saveSampleAccelerometer(long timestamp, float x, float y, float z, float rotationX,
-                float rotationY, float rotationZ, String sex, String age, String height, String shoes,
-                String hand, String action, String origin, String destination) {
+                float rotationY, float rotationZ, float proximity, String sex, String age, String height,
+                String shoes, String hand, String action, String origin, String destination) {
 
         database.insertOrThrow(DATABASE_TABLE, null, createContentValues(timestamp, x, y, z, rotationX,
-                rotationY, rotationZ, sex, age, height, shoes, hand, action, origin, destination, trunkAccelerometer));
+                rotationY, rotationZ, proximity, sex, age, height, shoes, hand, action, origin,
+                destination, trunkAccelerometer));
     }
 
     public void saveSampleLinear(long timestamp, float x, float y, float z, float rotationX,
-                float rotationY, float rotationZ, String sex, String age, String height, String shoes,
-                String hand, String action, String origin, String destination) {
+                float rotationY, float rotationZ, float proximity, String sex, String age, String height,
+                String shoes, String hand, String action, String origin, String destination) {
 
         database.insertOrThrow(DATABASE_TABLE_LINEAR, null, createContentValues(timestamp, x, y, z,
-                rotationX, rotationY, rotationZ, sex, age, height, shoes, hand, action, origin,
+                rotationX, rotationY, rotationZ, proximity, sex, age, height, shoes, hand, action, origin,
                 destination, trunkLinear));
     }
 

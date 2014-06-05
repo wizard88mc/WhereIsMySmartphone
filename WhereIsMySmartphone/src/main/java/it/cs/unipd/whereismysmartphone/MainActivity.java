@@ -1,14 +1,25 @@
 package it.cs.unipd.whereismysmartphone;
 
-import android.support.v7.app.ActionBarActivity;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 
+import it.cs.unipd.listeners.SensorsListener;
+import it.cs.unipd.utils.Settings;
+
 
 public class MainActivity extends ActionBarActivity {
+
+    public static Settings experimentSettings;
+    private SensorsListener sensorListener = null;
+    private boolean recordingData = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -30,6 +41,8 @@ public class MainActivity extends ActionBarActivity {
         setAdapterForSpinner((Spinner)findViewById(R.id.from), R.array.origins);
 
         setAdapterForSpinner((Spinner) findViewById(R.id.destination), R.array.destinations);
+
+        sensorListener = new SensorsListener(this);
     }
 
 
@@ -56,5 +69,26 @@ public class MainActivity extends ActionBarActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    public void onBtnClick(View view) {
+
+        view.setEnabled(false);
+        sensorListener.startRecordData();
+        try {
+            Thread.sleep(3000);
+
+            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
+            r.play();
+
+            Thread.sleep(4000);
+            sensorListener.stopRecordData();
+            view.setEnabled(true);
+        }
+        catch(InterruptedException exc) {
+            exc.printStackTrace();
+        }
+
     }
 }
