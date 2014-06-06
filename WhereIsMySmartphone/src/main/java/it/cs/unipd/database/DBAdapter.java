@@ -13,7 +13,7 @@ public class DBAdapter {
 
     private Context context;
     private DatabaseHelper dbHelper;
-    private SQLiteDatabase database;
+    public SQLiteDatabase database;
     private int trunkAccelerometer = 1;
     private int trunkLinear = 1;
 
@@ -82,6 +82,7 @@ public class DBAdapter {
         values.put(KEY_action, action);
         values.put(KEY_origin, origin);
         values.put(KEY_destination, destination);
+        values.put(KEY_trunk, trunk);
 
         return values;
     }

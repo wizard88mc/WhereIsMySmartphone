@@ -20,54 +20,30 @@ public class SensorsListener implements SensorEventListener {
     private Float lastRotationY = null;
     private Float lastRotationZ = null;
     private Float lastValueProximity = null;
-    private SensorManager mSensorManager;
-    private Sensor mSensorAccelerometer;
-    private Sensor mSensorLinear;
-    private Sensor mSensorRotation;
-    private Sensor mSensorProximity;
 
-    private DBAdapter dbAdapter;
+    public DBAdapter dbAdapter;
 
     public SensorsListener(Context context) {
 
-        mSensorManager = (SensorManager)context.getSystemService(Context.SENSOR_SERVICE);
-
-        mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorLinear = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mSensorRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        mSensorProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
         dbAdapter = new DBAdapter(context);
-    }
-
-    public void startRecordData() {
         try {
             dbAdapter.open();
-            mSensorManager.registerListener(this, mSensorRotation, 8000);
-            mSensorManager.registerListener(this, mSensorAccelerometer, 8000);
-            mSensorManager.registerListener(this, mSensorLinear, 8000);
-            mSensorManager.registerListener(this, mSensorProximity, 8000);
         }
-        catch(SQLException exc) {
+        catch (SQLException exc) {
             exc.printStackTrace();
         }
-
     }
 
     public void stopRecordData() {
-        mSensorManager.unregisterListener(this, mSensorRotation);
-        mSensorManager.unregisterListener(this, mSensorLinear);
-        mSensorManager.unregisterListener(this, mSensorRotation);
-        mSensorManager.unregisterListener(this, mSensorProximity);
+
         lastRotationX = null; lastRotationY = null; lastRotationZ = null;
         lastValueProximity = null;
-        dbAdapter.close();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event.sensor == mSensorAccelerometer) {
+        if (event.sensor == SamplingStoreService.mSensorAccelerometer) {
             if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                     lastValueProximity != null) {
 
@@ -79,7 +55,7 @@ public class SensorsListener implements SensorEventListener {
                         MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
             }
         }
-        else if (event.sensor == mSensorLinear) {
+        else if (event.sensor == SamplingStoreService.mSensorLinear) {
             if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                     lastValueProximity != null) {
 
@@ -91,10 +67,10 @@ public class SensorsListener implements SensorEventListener {
                         MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
             }
         }
-        else if (event.sensor == mSensorRotation) {
+        else if (event.sensor == SamplingStoreService.mSensorRotation) {
             lastRotationX = event.values[0]; lastRotationY = event.values[1]; lastRotationZ = event.values[2];
         }
-        else if (event.sensor == mSensorProximity) {
+        else if (event.sensor == SamplingStoreService.mSensorProximity) {
             lastValueProximity = event.values[0];
         }
     }

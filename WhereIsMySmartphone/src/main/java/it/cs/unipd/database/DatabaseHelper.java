@@ -12,7 +12,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     private static final String DATABASE_TABLE = "samples_accelerometer";
     private static final String DATABASE_TABLE_LINEAR = "samples_linear";
     private static final String DATABASE_NAME  = "whereismysmartphone.db";
-    private static final int SCHEMA = 2;
+    private static final int SCHEMA = 4;
 
     public static String getDatabaseTable() {
         return DATABASE_TABLE;
@@ -28,13 +28,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db) {
-        db.execSQL("CREATE TABLE IF NOT EXISTS" + DATABASE_TABLE + " (\"timestamp\" REAL, " +
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + DATABASE_TABLE + " (\"timestamp\" REAL, " +
             "\"x\" REAL, \"y\" REAL, \"z\" REAL, \"rotationX\" REAL, \"rotationY\" REAL, " +
             "\"rotationZ\" REAL, \"proximity\" REAL, \"sex\" TEXT, \"age\" TEXT, \"height\" TEXT, " +
             "\"shoes\" TEXT, \"hand\" TEXT, \"action\" TEXT, \"origin\" TEXT, " +
             "\"destination\" TEXT, \"trunk\" INTEGER);");
 
-        db.execSQL("CREATE TABLE IF NOT EXISTS" + DATABASE_TABLE_LINEAR + " (\"timestamp\" REAL, " +
+        db.execSQL("CREATE TABLE IF NOT EXISTS " + DATABASE_TABLE_LINEAR + " (\"timestamp\" REAL, " +
                 "\"x\" REAL, \"y\" REAL, \"z\" REAL, \"rotationX\" REAL, \"rotationY\" REAL, " +
                 "\"rotationZ\" REAL, \"proximity\" REAL, \"sex\" TEXT, \"age\" TEXT, \"height\" TEXT, " +
                 "\"shoes\" TEXT, \"hand\" TEXT, \"action\" TEXT, \"origin\" TEXT, " +
