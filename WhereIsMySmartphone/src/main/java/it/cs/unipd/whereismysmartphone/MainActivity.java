@@ -34,8 +34,8 @@ import it.cs.unipd.utils.Settings;
 public class MainActivity extends ActionBarActivity {
 
     public static Settings experimentSettings;
-    private SensorsListener sensorListener = null;
     private Intent backgroundStoreSampler;
+    private static View button;
 
 
     @Override
@@ -113,6 +113,8 @@ public class MainActivity extends ActionBarActivity {
 
     public void onBtnClick(View view) {
 
+        button = view;
+
         String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
         String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
         String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
@@ -140,22 +142,8 @@ public class MainActivity extends ActionBarActivity {
         editor.putString("DESTINATION", destination);
         editor.commit();
 
+        view.setEnabled(false);
         startService(backgroundStoreSampler);
-        try {
-            Thread.sleep(3000);
-
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-            r.play();
-
-            Thread.sleep(4000);
-            Log.d("MAIN_ACTIVITY", "Before stopping data");
-            stopService(backgroundStoreSampler);
-            Log.d("MAIN_ACTIVITY", "After stopping data");
-        } catch (InterruptedException exc) {
-            exc.printStackTrace();
-        }
-
     }
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
@@ -179,7 +167,10 @@ public class MainActivity extends ActionBarActivity {
             file=this.getFileStreamPath(output_name);
             Intent i=new Intent(Intent.ACTION_SEND);
             i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            i.setType("*/*");
+            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"mciman@math.unipd.it"});
+            i.putExtra(Intent.EXTRA_SUBJECT, "New WhereIsMySmartphone Database");
+            i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me. ");
+            i.setType("message/rfc822");
             startActivity(Intent.createChooser(i, "Share to"));
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -198,5 +189,10 @@ public class MainActivity extends ActionBarActivity {
         catch (SQLException exc) {
             exc.printStackTrace();
         }
+    }
+
+    public static void activateButton() {
+        Log.d("MESSAGE", "Activating button");
+        MainActivity.button.setEnabled(true);
     }
 }
