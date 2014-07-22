@@ -1,5 +1,7 @@
 package it.cs.unipd.whereismysmartphone;
 
+import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.media.Ringtone;
@@ -36,6 +38,7 @@ public class MainActivity extends ActionBarActivity {
     public static Settings experimentSettings;
     private Intent backgroundStoreSampler;
     private static View button;
+    private static Context context;
 
 
     @Override
@@ -78,6 +81,8 @@ public class MainActivity extends ActionBarActivity {
                 getResources().getStringArray(R.array.destinations)).indexOf(preferences.getString("DESTINATION", "")));
 
         backgroundStoreSampler = new Intent(this, SamplingStoreService.class);
+
+        MainActivity.context = getApplicationContext();
     }
 
 
@@ -167,7 +172,7 @@ public class MainActivity extends ActionBarActivity {
             file=this.getFileStreamPath(output_name);
             Intent i=new Intent(Intent.ACTION_SEND);
             i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"mciman@math.unipd.it"});
+            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"whereismysmartphone.math.unipd@gmail.com"});
             i.putExtra(Intent.EXTRA_SUBJECT, "New WhereIsMySmartphone Database");
             i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me. ");
             i.setType("message/rfc822");

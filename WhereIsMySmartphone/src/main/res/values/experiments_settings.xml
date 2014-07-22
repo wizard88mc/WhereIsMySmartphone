@@ -33,7 +33,7 @@
     </string-array>
 
     <string-array name="shoes">
-        <item>Ginniche</item>
+        <item>Normali</item>
         <item>Con tacco</item>
     </string-array>
 
@@ -55,10 +55,14 @@
     </string-array>
 
     <string-array name="destinations">
-        <item>Tasca pantaloni davanti</item>
-        <item>Tasca pantaloni dietro</item>
+        <item>Tasca destra davanti pantaloni</item>
+        <item>Tasca destra dietro pantaloni</item>
+        <item>Tasca sinistra davanti pantaloni</item>
+        <item>Tasca sinistra dietro pantaloni</item>
         <item>Tasca giacca bassa</item>
         <item>Tasca giacca alta</item>
         <item>Borsa</item>
+        <item>Marsupio</item>
+        <item>Zaino</item>
     </string-array>
 </resources>

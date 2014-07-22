@@ -54,13 +54,13 @@ public class SamplingStoreService extends IntentService {
 
         Log.d("MESSAGE", "onStartCommand");
         sensorsListener.dbAdapter.database.beginTransaction();
-        mSensorManager.registerListener(sensorsListener, mSensorRotation, 8000);
-        mSensorManager.registerListener(sensorsListener, mSensorProximity, 8000);
-        mSensorManager.registerListener(sensorsListener, mSensorAccelerometer, 8000);
-        mSensorManager.registerListener(sensorsListener, mSensorLinear, 8000);
+        mSensorManager.registerListener(sensorsListener, mSensorRotation, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorsListener, mSensorProximity, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorsListener, mSensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorsListener, mSensorLinear, SensorManager.SENSOR_DELAY_FASTEST);
 
         try {
-            Thread.sleep(3000);
+            Thread.sleep(2000);
 
             Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
             Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
@@ -71,6 +71,8 @@ public class SamplingStoreService extends IntentService {
 
             Thread.sleep(4000);
 
+            r.play();
+            v.vibrate(500);
             this.stopSelf();
 
         } catch (InterruptedException exc) {
