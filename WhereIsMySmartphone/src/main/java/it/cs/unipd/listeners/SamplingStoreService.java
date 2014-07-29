@@ -42,7 +42,7 @@ public class SamplingStoreService extends IntentService {
         mSensorRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mSensorProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-        sensorsListener = new SensorsListener(getApplicationContext(), this);
+        //sensorsListener = new SensorsListener(getApplicationContext(), this);
     }
 
     @Override

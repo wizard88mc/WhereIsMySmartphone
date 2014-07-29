@@ -30,11 +30,11 @@ public class SensorsListener implements SensorEventListener {
     private Long timestampStartRecord = null;
     private Boolean firstStepDone = false;
 
-    private SamplingStoreService storeService;
+    private MainActivity activity;
 
     public DBAdapter dbAdapter;
 
-    public SensorsListener(Context context, SamplingStoreService storeService) {
+    public SensorsListener(Context context, MainActivity activity) {
 
         dbAdapter = new DBAdapter(context);
         try {
@@ -45,7 +45,7 @@ public class SensorsListener implements SensorEventListener {
         }
 
         this.context = context;
-        this.storeService = storeService;
+        this.activity = activity;
     }
 
     public void stopRecordData() {
@@ -53,14 +53,14 @@ public class SensorsListener implements SensorEventListener {
         lastRotationX = null; lastRotationY = null; lastRotationZ = null;
         lastValueProximity = null; firstStepDone = false;
         timestampStartRecord = null;
-        storeService.stopAccelerometer();
+        //activity.stopRecordData();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event != null) {
-            if (event.sensor == SamplingStoreService.mSensorAccelerometer) {
+        /*if (event != null) {
+            if (event.sensor == mSensorAccelerometer) {
                 if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                         lastValueProximity != null) {
 
@@ -85,7 +85,7 @@ public class SensorsListener implements SensorEventListener {
                     playSoundAndVibrate();
                     stopRecordData();
                 }
-            } else if (event.sensor == SamplingStoreService.mSensorLinear) {
+            } else if (event.sensor == MainActivity.mSensorLinear) {
                 if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                         lastValueProximity != null) {
 
@@ -96,15 +96,15 @@ public class SensorsListener implements SensorEventListener {
                             MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
                             MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
                 }
-            } else if (event.sensor == SamplingStoreService.mSensorRotation) {
+            } else if (event.sensor == MainActivity.mSensorRotation) {
                 lastRotationX = event.values[0];
                 lastRotationY = event.values[1];
                 lastRotationZ = event.values[2];
-            } else if (event.sensor == SamplingStoreService.mSensorProximity) {
-                Log.d("PROXIMITU", "proximity");
+            } else if (event.sensor == MainActivity.mSensorProximity) {
+                Log.d("PROXIMITY", "proximity");
                 lastValueProximity = event.values[0];
             }
-        }
+        }*/
     }
 
     @Override
@@ -114,10 +114,10 @@ public class SensorsListener implements SensorEventListener {
 
     private void playSoundAndVibrate() {
         Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-        Ringtone r = RingtoneManager.getRingtone(MainActivity.context, notification);
-        r.play();
+        //Ringtone r = RingtoneManager.getRingtone(MainActivity.context, notification);
+        //r.play();
 
-        Vibrator v = (Vibrator)MainActivity.context.getSystemService(Context.VIBRATOR_SERVICE);
-        v.vibrate(500);
+        //Vibrator v = (Vibrator)MainActivity.context.getSystemService(Context.VIBRATOR_SERVICE);
+        //v.vibrate(500);
     }
 }
