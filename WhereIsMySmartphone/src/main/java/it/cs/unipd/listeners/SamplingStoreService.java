@@ -24,6 +24,7 @@ public class SamplingStoreService extends IntentService {
     public static Sensor mSensorLinear;
     public static Sensor mSensorRotation;
     public static Sensor mSensorProximity;
+
     private SensorsListener sensorsListener;
 
     public SamplingStoreService() {
@@ -41,7 +42,7 @@ public class SamplingStoreService extends IntentService {
         mSensorRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
         mSensorProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
 
-        sensorsListener = new SensorsListener(getApplicationContext());
+        sensorsListener = new SensorsListener(getApplicationContext(), this);
     }
 
     @Override
@@ -52,32 +53,7 @@ public class SamplingStoreService extends IntentService {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        Log.d("MESSAGE", "onStartCommand");
-        sensorsListener.dbAdapter.database.beginTransaction();
-        mSensorManager.registerListener(sensorsListener, mSensorRotation, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(sensorsListener, mSensorProximity, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(sensorsListener, mSensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
-        mSensorManager.registerListener(sensorsListener, mSensorLinear, SensorManager.SENSOR_DELAY_FASTEST);
-
-        try {
-            Thread.sleep(2000);
-
-            Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
-            Ringtone r = RingtoneManager.getRingtone(getApplicationContext(), notification);
-            r.play();
-
-            Vibrator v = (Vibrator)this.getApplicationContext().getSystemService(Context.VIBRATOR_SERVICE);
-            v.vibrate(500);
-
-            Thread.sleep(4000);
-
-            r.play();
-            v.vibrate(500);
-            this.stopSelf();
-
-        } catch (InterruptedException exc) {
-            exc.printStackTrace();
-        }
+        startAccelerometer();
 
         return START_STICKY;
     }
@@ -88,17 +64,20 @@ public class SamplingStoreService extends IntentService {
     }
 
     public void stopAccelerometer() {
+
         mSensorManager.unregisterListener(sensorsListener, mSensorRotation);
         mSensorManager.unregisterListener(sensorsListener, mSensorLinear);
         mSensorManager.unregisterListener(sensorsListener, mSensorAccelerometer);
         mSensorManager.unregisterListener(sensorsListener, mSensorProximity);
 
-        sensorsListener.dbAdapter.database.setTransactionSuccessful();
-        sensorsListener.dbAdapter.database.endTransaction();
+        MainActivity.recording = false;
+        this.stopSelf();
+    }
 
-        sensorsListener.stopRecordData();
-
-        Log.d("MESSAGE", "Service stopped");
-        MainActivity.activateButton();
+    public void startAccelerometer() {
+        mSensorManager.registerListener(sensorsListener, mSensorProximity, SensorManager.SENSOR_DELAY_NORMAL);
+        mSensorManager.registerListener(sensorsListener, mSensorRotation, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorsListener, mSensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(sensorsListener, mSensorLinear, SensorManager.SENSOR_DELAY_FASTEST);
     }
 }

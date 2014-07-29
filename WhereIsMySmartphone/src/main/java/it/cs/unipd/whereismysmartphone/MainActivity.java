@@ -4,6 +4,8 @@ import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -38,8 +40,8 @@ public class MainActivity extends ActionBarActivity {
     public static Settings experimentSettings;
     private Intent backgroundStoreSampler;
     private static View button;
-    private static Context context;
-
+    public static Context context;
+    public static boolean recording = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,6 +85,8 @@ public class MainActivity extends ActionBarActivity {
         backgroundStoreSampler = new Intent(this, SamplingStoreService.class);
 
         MainActivity.context = getApplicationContext();
+
+        backgroundStoreSampler = new Intent(this, SamplingStoreService.class);
     }
 
 
@@ -118,36 +122,42 @@ public class MainActivity extends ActionBarActivity {
 
     public void onBtnClick(View view) {
 
-        button = view;
+        if (!recording) {
+            recording = true;
+            button = view;
 
-        String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
-        String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
-        String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
-        String shoes = ((Spinner) findViewById(R.id.shoes)).getSelectedItem().toString();
-        String hand = ((Spinner) findViewById(R.id.hand)).getSelectedItem().toString();
-        String action = ((Spinner) findViewById(R.id.action)).getSelectedItem().toString();
-        String origin = ((Spinner) findViewById(R.id.origin)).getSelectedItem().toString();
-        String destination = ((Spinner) findViewById(R.id.destination)).getSelectedItem().toString();
+            String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
+            String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
+            String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
+            String shoes = ((Spinner) findViewById(R.id.shoes)).getSelectedItem().toString();
+            String hand = ((Spinner) findViewById(R.id.hand)).getSelectedItem().toString();
+            String action = ((Spinner) findViewById(R.id.action)).getSelectedItem().toString();
+            String origin = ((Spinner) findViewById(R.id.origin)).getSelectedItem().toString();
+            String destination = ((Spinner) findViewById(R.id.destination)).getSelectedItem().toString();
 
-        MainActivity.experimentSettings = new Settings(sex, age, height, shoes, hand, action,
-                origin, destination);
+            MainActivity.experimentSettings = new Settings(sex, age, height, shoes, hand, action,
+                    origin, destination);
 
-        /**
-         * Storing preferences
-         */
-        SharedPreferences settings = this.getPreferences(0);
-        SharedPreferences.Editor editor = settings.edit();
-        editor.putString("SEX", sex);
-        editor.putString("AGE", age);
-        editor.putString("HEIGHT", height);
-        editor.putString("SHOES", shoes);
-        editor.putString("HAND", hand);
-        editor.putString("ACTION", action);
-        editor.putString("ORIGIN", origin);
-        editor.putString("DESTINATION", destination);
-        editor.commit();
+            /**
+             * Storing preferences
+             */
+            SharedPreferences settings = this.getPreferences(0);
+            SharedPreferences.Editor editor = settings.edit();
+            editor.putString("SEX", sex);
+            editor.putString("AGE", age);
+            editor.putString("HEIGHT", height);
+            editor.putString("SHOES", shoes);
+            editor.putString("HAND", hand);
+            editor.putString("ACTION", action);
+            editor.putString("ORIGIN", origin);
+            editor.putString("DESTINATION", destination);
+            editor.commit();
 
-        view.setEnabled(false);
+            startRecordData();
+        }
+    }
+
+    private void startRecordData() {
         startService(backgroundStoreSampler);
     }
 
@@ -194,10 +204,5 @@ public class MainActivity extends ActionBarActivity {
         catch (SQLException exc) {
             exc.printStackTrace();
         }
-    }
-
-    public static void activateButton() {
-        Log.d("MESSAGE", "Activating button");
-        MainActivity.button.setEnabled(true);
     }
 }

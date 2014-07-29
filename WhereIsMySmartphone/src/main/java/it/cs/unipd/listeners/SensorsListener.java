@@ -1,10 +1,16 @@
 package it.cs.unipd.listeners;
 
 import android.content.Context;
+import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
+import android.os.Vibrator;
+import android.util.Log;
 
 import java.sql.SQLException;
 
@@ -20,10 +26,15 @@ public class SensorsListener implements SensorEventListener {
     private Float lastRotationY = null;
     private Float lastRotationZ = null;
     private Float lastValueProximity = null;
+    private Context context = null;
+    private Long timestampStartRecord = null;
+    private Boolean firstStepDone = false;
+
+    private SamplingStoreService storeService;
 
     public DBAdapter dbAdapter;
 
-    public SensorsListener(Context context) {
+    public SensorsListener(Context context, SamplingStoreService storeService) {
 
         dbAdapter = new DBAdapter(context);
         try {
@@ -32,51 +43,81 @@ public class SensorsListener implements SensorEventListener {
         catch (SQLException exc) {
             exc.printStackTrace();
         }
+
+        this.context = context;
+        this.storeService = storeService;
     }
 
     public void stopRecordData() {
 
         lastRotationX = null; lastRotationY = null; lastRotationZ = null;
-        lastValueProximity = null;
+        lastValueProximity = null; firstStepDone = false;
+        timestampStartRecord = null;
+        storeService.stopAccelerometer();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event.sensor == SamplingStoreService.mSensorAccelerometer) {
-            if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
-                    lastValueProximity != null) {
+        if (event != null) {
+            if (event.sensor == SamplingStoreService.mSensorAccelerometer) {
+                if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
+                        lastValueProximity != null) {
 
-                dbAdapter.saveSampleAccelerometer(event.timestamp, event.values[0], event.values[1],
-                        event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
-                        MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
-                        MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
-                        MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
-                        MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
-            }
-        }
-        else if (event.sensor == SamplingStoreService.mSensorLinear) {
-            if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
-                    lastValueProximity != null) {
+                    dbAdapter.saveSampleAccelerometer(event.timestamp, event.values[0], event.values[1],
+                            event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
+                            MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
+                            MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
+                            MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
+                            MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
+                }
 
-                dbAdapter.saveSampleLinear(event.timestamp, event.values[0], event.values[1],
-                        event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
-                        MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
-                        MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
-                        MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
-                        MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
+                if (timestampStartRecord == null) {
+                    timestampStartRecord = event.timestamp;
+                }
+
+                if (!firstStepDone && event.timestamp - timestampStartRecord > 1500000000L) {
+                    firstStepDone = true;
+                    playSoundAndVibrate();
+                }
+
+                if (firstStepDone && event.timestamp - timestampStartRecord > 5500000000L) {
+                    playSoundAndVibrate();
+                    stopRecordData();
+                }
+            } else if (event.sensor == SamplingStoreService.mSensorLinear) {
+                if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
+                        lastValueProximity != null) {
+
+                    dbAdapter.saveSampleLinear(event.timestamp, event.values[0], event.values[1],
+                            event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
+                            MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
+                            MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
+                            MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
+                            MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination());
+                }
+            } else if (event.sensor == SamplingStoreService.mSensorRotation) {
+                lastRotationX = event.values[0];
+                lastRotationY = event.values[1];
+                lastRotationZ = event.values[2];
+            } else if (event.sensor == SamplingStoreService.mSensorProximity) {
+                Log.d("PROXIMITU", "proximity");
+                lastValueProximity = event.values[0];
             }
-        }
-        else if (event.sensor == SamplingStoreService.mSensorRotation) {
-            lastRotationX = event.values[0]; lastRotationY = event.values[1]; lastRotationZ = event.values[2];
-        }
-        else if (event.sensor == SamplingStoreService.mSensorProximity) {
-            lastValueProximity = event.values[0];
         }
     }
 
     @Override
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
 
+    }
+
+    private void playSoundAndVibrate() {
+        Uri notification = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        Ringtone r = RingtoneManager.getRingtone(MainActivity.context, notification);
+        r.play();
+
+        Vibrator v = (Vibrator)MainActivity.context.getSystemService(Context.VIBRATOR_SERVICE);
+        v.vibrate(500);
     }
 }

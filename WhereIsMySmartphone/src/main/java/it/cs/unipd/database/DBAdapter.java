@@ -3,6 +3,7 @@ package it.cs.unipd.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
+import android.util.Log;
 
 import java.sql.SQLException;
 
@@ -37,6 +38,8 @@ public class DBAdapter {
     private final String KEY_origin = "origin";
     private final String KEY_destination = "destination";
     private final String KEY_trunk = "trunk";
+
+    int value = 0;
 
     public DBAdapter(Context context) {
         this.context = context;
@@ -88,6 +91,7 @@ public class DBAdapter {
     }
 
     public void getNewTrunkIdAccelerometer() {
+        value = 0;
         this.trunkAccelerometer=1;
         if (this.getCount(false)>0) {
             this.trunkAccelerometer=(int)database.compileStatement(
@@ -126,9 +130,10 @@ public class DBAdapter {
                 float rotationY, float rotationZ, float proximity, String sex, String age, String height,
                 String shoes, String hand, String action, String origin, String destination) {
 
-        database.insertOrThrow(DATABASE_TABLE, null, createContentValues(timestamp, x, y, z, rotationX,
-                rotationY, rotationZ, proximity, sex, age, height, shoes, hand, action, origin,
-                destination, trunkAccelerometer));
+
+            database.insertOrThrow(DATABASE_TABLE, null, createContentValues(timestamp, x, y, z, rotationX,
+                    rotationY, rotationZ, proximity, sex, age, height, shoes, hand, action, origin,
+                    destination, trunkAccelerometer));
     }
 
     public void saveSampleLinear(long timestamp, float x, float y, float z, float rotationX,
