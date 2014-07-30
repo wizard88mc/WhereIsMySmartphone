@@ -29,6 +29,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 
@@ -153,6 +154,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         if (!recording) {
 
             Log.d("MAIN_ACTIVITY", "onBtnClick");
+            view.setEnabled(false);
             recording = true;
             currentTrunkAccelerometer++;
             currentTrunkLinear++;
@@ -189,10 +191,6 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
             fileWriter.openOutputStream();
             startRecordData();
         }
-        else {
-            stopSensors();
-            fileWriter.closeOutputStream();
-        }
     }
 
     private void startRecordData() {
@@ -214,16 +212,25 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         }.start();*/
     }
 
+    public void stopRecordData() {
+
+        lastRotationX = null; lastRotationY = null; lastRotationZ = null;
+        lastValueProximity = null; firstStepDone = false;
+        timestampStartRecord = null;
+    }
+
     public void stopSensors() {
 
+        this.recording = false;
         Log.d("MAIN_ACTIVITY","Stopping listeners");
         mSensorManager.unregisterListener(this, mSensorRotation);
         mSensorManager.unregisterListener(this, mSensorLinear);
         mSensorManager.unregisterListener(this, mSensorAccelerometer);
         mSensorManager.unregisterListener(this, mSensorProximity);
 
-        this.recording = false;
         stopRecordData();
+        fileWriter.closeOutputStream();
+        findViewById(R.id.btnStartRecording).setEnabled(true);
     }
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
@@ -239,27 +246,32 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         String output_name="whereismysmartphoneAcc_"+df.format(new Date())+".txt";
         String output_nameL = "whereismysmartphoneLin_"+df.format(new Date())+".txt";
         try {
-            //DBAdapter dbAdapter = new DBAdapter(this); // get reference to db connection
-            //dbAdapter.open();
+            ArrayList<Uri> uris = new ArrayList<Uri>();
+
             File file=new File(getApplicationContext().getFilesDir(), fileWriter.getAccelerometerFilename()); // get private db reference
             //dbAdapter.close();
             if (file.exists()==false || file.length()==0) throw new Exception("Empty DB");
             this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
             file=this.getFileStreamPath(output_name);
-            Intent i=new Intent(Intent.ACTION_SEND);
-            //i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            uris.add(Uri.fromFile(file));
 
             file = new File(getApplicationContext().getFilesDir(), fileWriter.getLinearFilename());
             if (file.exists()==false || file.length()==0) throw new Exception("Empty DB Linear");
             this.copyFile(new FileInputStream(file), this.openFileOutput(output_nameL, MODE_WORLD_READABLE));
             file=this.getFileStreamPath(output_nameL);
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            //i.putExtra(Intent.EXTRA_EMAIL, new String[]{"whereismysmartphone.math.unipd@gmail.com"});
-            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"wizard88mc@gmail.com"});
+            uris.add(Uri.fromFile(file));
+
+            Intent i=new Intent(Intent.ACTION_SEND_MULTIPLE);
+            i.putExtra(Intent.EXTRA_STREAM, uris);
+
+            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"whereismysmartphone.math.unipd@gmail.com"});
             i.putExtra(Intent.EXTRA_SUBJECT, "New WhereIsMySmartphone Database");
-            i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me. ");
-            i.setType("text/plain");
+
+            ArrayList<String> extra_text = new ArrayList<String>();
+            extra_text.add("Here is a new Database of data. Thanks to me. ");
+
+            i.putExtra(Intent.EXTRA_TEXT, extra_text);
+            i.setType("message/rfc822");
             startActivity(Intent.createChooser(i, "Share to"));
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -268,32 +280,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     public void clearDb() {
-        /*DBAdapter dbAdapter = new DBAdapter(this);
-        try {
-            dbAdapter.open();
-            dbAdapter.cleanDB();
-            Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_SHORT).show();
-            dbAdapter.close();
-        }
-        catch (SQLException exc) {
-            exc.printStackTrace();
-        }*/
         fileWriter.deleteFiles();
         Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_SHORT).show();
-    }
-
-    public void stopRecordData() {
-
-        lastRotationX = null; lastRotationY = null; lastRotationZ = null;
-        lastValueProximity = null; firstStepDone = false;
-        timestampStartRecord = null;
-        //activity.stopRecordData();
     }
 
     @Override
     public void onSensorChanged(SensorEvent event) {
 
-        if (event != null) {
+        if (event != null && this.recording) {
             if (event.sensor == mSensorAccelerometer) {
                 if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                         lastValueProximity != null) {
@@ -311,17 +305,14 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
                 if (timestampStartRecord == null) {
                     timestampStartRecord = event.timestamp;
-                }
-
-                if (!firstStepDone && event.timestamp - timestampStartRecord > 1500000000L) {
+                } else if (!firstStepDone && event.timestamp - timestampStartRecord > 1000000000L) {
                     firstStepDone = true;
                     playSoundAndVibrate();
-                }
-
-                if (firstStepDone && event.timestamp - timestampStartRecord > 5500000000L) {
+                } else if (firstStepDone && event.timestamp - timestampStartRecord > 5000000000L) {
                     playSoundAndVibrate();
                     stopSensors();
                 }
+
             } else if (event.sensor == mSensorLinear) {
                 if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
                         lastValueProximity != null) {
