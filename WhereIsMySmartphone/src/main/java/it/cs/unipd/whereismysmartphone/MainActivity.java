@@ -1,17 +1,13 @@
 package it.cs.unipd.whereismysmartphone;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Parcelable;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
@@ -24,44 +20,25 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-
-import it.cs.unipd.database.DBAdapter;
-import it.cs.unipd.database.DBFileWriter;
-import it.cs.unipd.listeners.SamplingStoreService;
-import it.cs.unipd.listeners.SensorsListener;
-import it.cs.unipd.utils.Settings;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
-public class MainActivity extends ActionBarActivity implements SensorEventListener {
+public class MainActivity extends ActionBarActivity
+{
 
-    public static Settings experimentSettings;
     public static boolean recording = false;
 
-    private SensorManager mSensorManager;
-    public Sensor mSensorAccelerometer;
-    public Sensor mSensorLinear;
-    public Sensor mSensorRotation;
-    public Sensor mSensorProximity;
-
-    private Float lastRotationX = null;
-    private Float lastRotationY = null;
-    private Float lastRotationZ = null;
-    private Float lastValueProximity = null;
-    private Long timestampStartRecord = null;
-    private Boolean firstStepDone = false;
-
-    //public DBAdapter dbAdapter;
-
-    private DBFileWriter fileWriter;
-    int currentTrunkAccelerometer = 0;
-    int currentTrunkLinear = 0;
+    private Controller mController = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -102,19 +79,7 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         ((Spinner)findViewById(R.id.destination)).setSelection(Arrays.asList(
                 getResources().getStringArray(R.array.destinations)).indexOf(preferences.getString("DESTINATION", "")));
 
-        currentTrunkAccelerometer = preferences.getInt("ACCELEROMETER_LAST_TRUNK", 0);
-        currentTrunkLinear = preferences.getInt("LINEAR_LAST_TRUNK", 0);
-
-        //backgroundStoreSampler = new Intent(this, SamplingStoreService.class);
-
-        mSensorManager = (SensorManager)getSystemService(Context.SENSOR_SERVICE);
-
-        mSensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorLinear = mSensorManager.getDefaultSensor(Sensor.TYPE_LINEAR_ACCELERATION);
-        mSensorRotation = mSensorManager.getDefaultSensor(Sensor.TYPE_ROTATION_VECTOR);
-        mSensorProximity = mSensorManager.getDefaultSensor(Sensor.TYPE_PROXIMITY);
-
-        fileWriter = new DBFileWriter(getApplicationContext());
+        mController = new Controller(this);
     }
 
 
@@ -148,82 +113,65 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
         return (super.onOptionsItemSelected(item));
     }
 
-    public void onBtnClick(View view) {
+    public void onBtnClick(final View view) {
 
         if (!recording) {
 
             Log.d("MAIN_ACTIVITY", "onBtnClick");
+
+            final String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
+            final String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
+            final String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
+            final String shoes = ((Spinner) findViewById(R.id.shoes)).getSelectedItem().toString();
+            final String hand = ((Spinner) findViewById(R.id.hand)).getSelectedItem().toString();
+            final String action = ((Spinner) findViewById(R.id.action)).getSelectedItem().toString();
+            final String origin = ((Spinner) findViewById(R.id.origin)).getSelectedItem().toString();
+            final String destination = ((Spinner) findViewById(R.id.destination)).getSelectedItem().toString();
+
             recording = true;
-            currentTrunkAccelerometer++;
-            currentTrunkLinear++;
 
-            String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
-            String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
-            String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
-            String shoes = ((Spinner) findViewById(R.id.shoes)).getSelectedItem().toString();
-            String hand = ((Spinner) findViewById(R.id.hand)).getSelectedItem().toString();
-            String action = ((Spinner) findViewById(R.id.action)).getSelectedItem().toString();
-            String origin = ((Spinner) findViewById(R.id.origin)).getSelectedItem().toString();
-            String destination = ((Spinner) findViewById(R.id.destination)).getSelectedItem().toString();
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    view.findViewById(R.id.btnStartStop).setEnabled(false);
+                    new Thread() {
+                        public void run() {
+                            mController.readyToStartExercise(sex, age, height, shoes, hand, action,
+                                    origin, destination);
 
-            MainActivity.experimentSettings = new Settings(sex, age, height, shoes, hand, action,
-                    origin, destination);
+                            ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+                            executor.schedule(new Runnable() {
+                                @Override
+                                public void run() {
+                                    playSoundAndVibrate();
+                                }
+                            }, 4, TimeUnit.SECONDS);
 
-            /**
-             * Storing preferences
-             */
-            SharedPreferences settings = this.getPreferences(0);
-            SharedPreferences.Editor editor = settings.edit();
-            editor.putString("SEX", sex);
-            editor.putString("AGE", age);
-            editor.putString("HEIGHT", height);
-            editor.putString("SHOES", shoes);
-            editor.putString("HAND", hand);
-            editor.putString("ACTION", action);
-            editor.putString("ORIGIN", origin);
-            editor.putString("DESTINATION", destination);
-            editor.putInt("ACCELEROMETER_LAST_TRUNK", currentTrunkAccelerometer);
-            editor.putInt("LINEAR_LAST_TRUNK", currentTrunkLinear);
-            editor.commit();
+                            ScheduledExecutorService secondExecutor = Executors.newScheduledThreadPool(1);
+                            secondExecutor.schedule(new Runnable() {
+                                @Override
+                                public void run() {
 
-            fileWriter.openOutputStream();
-            startRecordData();
+                                    runOnUiThread(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            mController.stopRecording();
+                                            MainActivity.this.findViewById(R.id.btnStartStop).setEnabled(true);
+                                            playSoundAndVibrate();
+                                        }
+                                    });
+
+                                }
+                            }, 8, TimeUnit.SECONDS);
+                        }
+                    }.start();
+                }
+            });
         }
         else {
-            stopSensors();
-            fileWriter.closeOutputStream();
+            recording = false;
+
         }
-    }
-
-    private void startRecordData() {
-
-        Log.d("MAIN_ACTIVITY", "Registering listener");
-        mSensorManager.registerListener(this, mSensorProximity, SensorManager.SENSOR_DELAY_NORMAL);
-        mSensorManager.registerListener(this, mSensorRotation, SensorManager.SENSOR_DELAY_GAME);
-        mSensorManager.registerListener(this, mSensorAccelerometer, SensorManager.SENSOR_DELAY_GAME);
-        mSensorManager.registerListener(this, mSensorLinear, SensorManager.SENSOR_DELAY_GAME);
-
-        /*new Thread() {
-            public void run() {
-                try {
-                    Thread.sleep(5500);
-                }
-                catch(InterruptedException exc) {}
-                MainActivity.this.stopSensors();
-            }
-        }.start();*/
-    }
-
-    public void stopSensors() {
-
-        Log.d("MAIN_ACTIVITY","Stopping listeners");
-        mSensorManager.unregisterListener(this, mSensorRotation);
-        mSensorManager.unregisterListener(this, mSensorLinear);
-        mSensorManager.unregisterListener(this, mSensorAccelerometer);
-        mSensorManager.unregisterListener(this, mSensorProximity);
-
-        this.recording = false;
-        stopRecordData();
     }
 
     private void copyFile(InputStream in, OutputStream out) throws IOException {
@@ -236,30 +184,39 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
 
     private void shareDb() {
         SimpleDateFormat df=new SimpleDateFormat("yyyyMMddHHmmss");
-        String output_name="whereismysmartphoneAcc_"+df.format(new Date())+".txt";
-        String output_nameL = "whereismysmartphoneLin_"+df.format(new Date())+".txt";
+        String output_name="whereismysmartphoneAcc_"+df.format(new Date())+".csv";
+        String output_nameL = "whereismysmartphoneLin_"+df.format(new Date())+".csv";
+        String output_nameS = "whereismysmartphoneSettings_"+df.format(new Date())+".csv";
         try {
-            //DBAdapter dbAdapter = new DBAdapter(this); // get reference to db connection
-            //dbAdapter.open();
-            File file=new File(getApplicationContext().getFilesDir(), fileWriter.getAccelerometerFilename()); // get private db reference
-            //dbAdapter.close();
-            if (file.exists()==false || file.length()==0) throw new Exception("Empty DB");
-            this.copyFile(new FileInputStream(file), this.openFileOutput(output_name, MODE_WORLD_READABLE));
-            file=this.getFileStreamPath(output_name);
-            Intent i=new Intent(Intent.ACTION_SEND);
-            //i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            Intent i=new Intent(Intent.ACTION_SEND_MULTIPLE);
+            ArrayList<Uri> uris = new ArrayList<Uri>();
 
-            file = new File(getApplicationContext().getFilesDir(), fileWriter.getLinearFilename());
-            if (file.exists()==false || file.length()==0) throw new Exception("Empty DB Linear");
-            this.copyFile(new FileInputStream(file), this.openFileOutput(output_nameL, MODE_WORLD_READABLE));
-            file=this.getFileStreamPath(output_nameL);
-            i.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(file));
+            File file=new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_ACCELEROMETER); // get private db reference
+            if (!file.exists() || file.length()==0) throw new Exception("Empty DB");
+            File destination = new File(getApplicationContext().getExternalFilesDir(null), output_name);
+            this.copyFile(new FileInputStream(file), new FileOutputStream(destination));
+            uris.add(Uri.fromFile(destination));
+
+            file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_LINEAR);
+            if (!file.exists() || file.length()==0) throw new Exception("Empty DB Linear");
+            destination = new File(getExternalFilesDir(null), output_nameL);
+            this.copyFile(new FileInputStream(file), new FileOutputStream(destination));
+            uris.add(Uri.fromFile(destination));
+
+            file = new File(getFilesDir(), Logger.BASE_FILE_NAME_SETTINGS_TRUNK);
+            if (!file.exists() || file.length() == 0) throw new Exception("Empty Settings");
+            destination = new File(getExternalFilesDir(null), output_nameS);
+            this.copyFile(new FileInputStream(file),new FileOutputStream(destination));
+            //file = this.getFileStreamPath(output_nameS);
+            uris.add(Uri.fromFile(destination));
+
+            i.putExtra(Intent.EXTRA_STREAM, uris);
             //i.putExtra(Intent.EXTRA_EMAIL, new String[]{"whereismysmartphone.math.unipd@gmail.com"});
             i.putExtra(Intent.EXTRA_EMAIL, new String[]{"wizard88mc@gmail.com"});
             i.putExtra(Intent.EXTRA_SUBJECT, "New WhereIsMySmartphone Database");
-            i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me. ");
-            i.setType("text/plain");
+
+            i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me.");
+            i.setType("plain/text");
             startActivity(Intent.createChooser(i, "Share to"));
         } catch (Exception e) {
             Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
@@ -268,87 +225,8 @@ public class MainActivity extends ActionBarActivity implements SensorEventListen
     }
 
     public void clearDb() {
-        /*DBAdapter dbAdapter = new DBAdapter(this);
-        try {
-            dbAdapter.open();
-            dbAdapter.cleanDB();
-            Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_SHORT).show();
-            dbAdapter.close();
-        }
-        catch (SQLException exc) {
-            exc.printStackTrace();
-        }*/
-        fileWriter.deleteFiles();
+        mController.deleteFiles();
         Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_SHORT).show();
-    }
-
-    public void stopRecordData() {
-
-        lastRotationX = null; lastRotationY = null; lastRotationZ = null;
-        lastValueProximity = null; firstStepDone = false;
-        timestampStartRecord = null;
-        //activity.stopRecordData();
-    }
-
-    @Override
-    public void onSensorChanged(SensorEvent event) {
-
-        if (event != null) {
-            if (event.sensor == mSensorAccelerometer) {
-                if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
-                        lastValueProximity != null) {
-
-                    //dbAdapter.saveSampleAccelerometer(event.timestamp, event.values[0], event.values[1],
-                    fileWriter.addAccelerometerValue(event.timestamp, event.values[0], event.values[1],
-                            event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
-                            MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
-                            MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
-                            MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
-                            MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination(),
-                            currentTrunkAccelerometer);
-
-                }
-
-                if (timestampStartRecord == null) {
-                    timestampStartRecord = event.timestamp;
-                }
-
-                if (!firstStepDone && event.timestamp - timestampStartRecord > 1500000000L) {
-                    firstStepDone = true;
-                    playSoundAndVibrate();
-                }
-
-                if (firstStepDone && event.timestamp - timestampStartRecord > 5500000000L) {
-                    playSoundAndVibrate();
-                    stopSensors();
-                }
-            } else if (event.sensor == mSensorLinear) {
-                if (lastRotationX != null && lastRotationY != null && lastRotationZ != null &&
-                        lastValueProximity != null) {
-
-                    //dbAdapter.saveSampleLinear(event.timestamp, event.values[0], event.values[1],
-                    fileWriter.addLinearValue(event.timestamp, event.values[0], event.values[1],
-                            event.values[2], lastRotationX, lastRotationY, lastRotationZ, lastValueProximity,
-                            MainActivity.experimentSettings.getSex(), MainActivity.experimentSettings.getAge(),
-                            MainActivity.experimentSettings.getHeight(), MainActivity.experimentSettings.getShoes(),
-                            MainActivity.experimentSettings.getHand(), MainActivity.experimentSettings.getAction(),
-                            MainActivity.experimentSettings.getOrigin(), MainActivity.experimentSettings.getDestination(),
-                            currentTrunkAccelerometer);
-                }
-            } else if (event.sensor == mSensorRotation) {
-                lastRotationX = event.values[0];
-                lastRotationY = event.values[1];
-                lastRotationZ = event.values[2];
-            } else if (event.sensor == mSensorProximity) {
-                Log.d("PROXIMITY", "proximity: " + Float.toString(event.values[0]));
-                lastValueProximity = event.values[0];
-            }
-        }
-    }
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
     }
 
     private void playSoundAndVibrate() {

@@ -52,4 +52,10 @@ public class Settings {
     public String getDestination() {
         return this.destination;
     }
+
+    @Override
+    public String toString() {
+        return sex + "," + age + "," + height + "," + shoes + "," + hand + "," + action + "," +
+                origin + "," + destination;
+    }
 }
