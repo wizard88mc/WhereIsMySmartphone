@@ -188,6 +188,7 @@ public class MainActivity extends ActionBarActivity
         String output_nameL = "whereismysmartphoneLin_"+df.format(new Date())+".csv";
         String output_nameS = "whereismysmartphoneSettings_"+df.format(new Date())+".csv";
         try {
+
             Intent i=new Intent(Intent.ACTION_SEND_MULTIPLE);
             ArrayList<Uri> uris = new ArrayList<Uri>();
 
@@ -203,7 +204,7 @@ public class MainActivity extends ActionBarActivity
             this.copyFile(new FileInputStream(file), new FileOutputStream(destination));
             uris.add(Uri.fromFile(destination));
 
-            file = new File(getFilesDir(), Logger.BASE_FILE_NAME_SETTINGS_TRUNK);
+            file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_SETTINGS_TRUNK);
             if (!file.exists() || file.length() == 0) throw new Exception("Empty Settings");
             destination = new File(getExternalFilesDir(null), output_nameS);
             this.copyFile(new FileInputStream(file),new FileOutputStream(destination));

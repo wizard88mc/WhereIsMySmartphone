@@ -26,6 +26,8 @@ public class DBFileWriter {
         fileAccelerometer = new File(context.getFilesDir(), filenameAccelerometer);
         fileLinear = new File(context.getFilesDir(), filenameLinear);
 
+        createNewFiles();
+
         this.context = context;
     }
 
@@ -95,7 +97,29 @@ public class DBFileWriter {
         context.deleteFile(filenameAccelerometer);
         context.deleteFile(filenameLinear);
 
-        fileAccelerometer = new File(context.getFilesDir(), filenameAccelerometer);
-        fileLinear = new File(context.getFilesDir(), filenameLinear);
+        createNewFiles();
+    }
+
+    private void createNewFiles() {
+        try {
+            if (!fileAccelerometer.exists()) {
+                Log.d("DBFileWriter", "Creating accelerometer file");
+                fileAccelerometer.createNewFile();
+            }
+            else {
+                Log.d("DBFileWriter", "Accelerometer file already exists");
+            }
+            if (!fileLinear.exists()) {
+                Log.d("DBFileWriter", "Creating linear file");
+                fileLinear.createNewFile();
+            }
+            else {
+                Log.d("DBFileWriter", "Linear file already exists");
+                Log.d("DBFileWriter", Long.toString(fileAccelerometer.length()));
+            }
+        }
+        catch(IOException exc) {
+            Log.e("DBFileWriter", "Could not create file");
+        }
     }
 }
