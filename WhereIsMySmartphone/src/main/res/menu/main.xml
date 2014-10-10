@@ -6,6 +6,9 @@
         android:title="Cancella DB"
         app:showAsAction="never"/>
 
-    <item android:id="@+id/action_upload_db"
+    <item android:id="@+id/action_send_db"
         android:title="Invia DB" />
+
+    <item android:id="@+id/action_upload_db"
+        android:title="Upload DB" />
 </menu>
