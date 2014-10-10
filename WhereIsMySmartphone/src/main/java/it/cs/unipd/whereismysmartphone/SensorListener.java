@@ -46,21 +46,23 @@ public class SensorListener implements SensorEventListener
                 @Override
                 public void run() {
                     // here the logger has to save the data
-                    logger.saveRecordAccelerometer(timestamp, currentValueProximity, values[0],
-                            values[1], values[2], currentValuesRotationVector[0], currentValuesRotationVector[1],
-                            currentValuesRotationVector[2],
-                            currentValuesGravity != null ? currentValuesGravity[0] : null,
-                            currentValuesGravity != null ? currentValuesGravity[1] : null,
-                            currentValuesGravity != null ? currentValuesGravity[2] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[0] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[1] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[2] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[0] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[1] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[2] : null,
-                            currentValueAmbientTemperature, maxRangeAmbientTemperature, currentValueLight,
-                            maxRangeValueLight, currentValuePressure, maxRangePressure, currentValueRelativeHumidity,
-                            maxRangeRelativeHumidity, mController.currentTrunkAccelerometer);
+                    if (currentValuesRotationVector != null) {
+                        logger.saveRecordAccelerometer(timestamp, currentValueProximity, values[0],
+                                values[1], values[2], currentValuesRotationVector[0], currentValuesRotationVector[1],
+                                currentValuesRotationVector[2],
+                                currentValuesGravity != null ? currentValuesGravity[0] : null,
+                                currentValuesGravity != null ? currentValuesGravity[1] : null,
+                                currentValuesGravity != null ? currentValuesGravity[2] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[0] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[1] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[2] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[0] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[1] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[2] : null,
+                                currentValueAmbientTemperature, maxRangeAmbientTemperature, currentValueLight,
+                                maxRangeValueLight, currentValuePressure, maxRangePressure, currentValueRelativeHumidity,
+                                maxRangeRelativeHumidity, mController.currentTrunkAccelerometer);
+                    }
                 }
             }.start();
         }
@@ -73,21 +75,23 @@ public class SensorListener implements SensorEventListener
                 @Override
                 public void run() {
                     // logger has to write data for the linear sensor
-                    logger.saveRecordLinear(timestamp, currentValueProximity, values[0],
-                            values[1], values[2], currentValuesRotationVector[0], currentValuesRotationVector[1],
-                            currentValuesRotationVector[2],
-                            currentValuesGravity != null ? currentValuesGravity[0] : null,
-                            currentValuesGravity != null ? currentValuesGravity[1] : null,
-                            currentValuesGravity != null ? currentValuesGravity[2] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[0] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[1] : null,
-                            currentValuesGyroscope != null ? currentValuesGyroscope[2] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[0] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[1] : null,
-                            currentValuesMagneticField != null ? currentValuesMagneticField[2] : null,
-                            currentValueAmbientTemperature, maxRangeAmbientTemperature, currentValueLight,
-                            maxRangeValueLight, currentValuePressure, maxRangePressure, currentValueRelativeHumidity,
-                            maxRangeRelativeHumidity, mController.currentTrunkLinear);
+                    if (currentValuesRotationVector != null) {
+                        logger.saveRecordLinear(timestamp, currentValueProximity, values[0],
+                                values[1], values[2], currentValuesRotationVector[0], currentValuesRotationVector[1],
+                                currentValuesRotationVector[2],
+                                currentValuesGravity != null ? currentValuesGravity[0] : null,
+                                currentValuesGravity != null ? currentValuesGravity[1] : null,
+                                currentValuesGravity != null ? currentValuesGravity[2] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[0] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[1] : null,
+                                currentValuesGyroscope != null ? currentValuesGyroscope[2] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[0] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[1] : null,
+                                currentValuesMagneticField != null ? currentValuesMagneticField[2] : null,
+                                currentValueAmbientTemperature, maxRangeAmbientTemperature, currentValueLight,
+                                maxRangeValueLight, currentValuePressure, maxRangePressure, currentValueRelativeHumidity,
+                                maxRangeRelativeHumidity, mController.currentTrunkLinear);
+                    }
                 }
             }.start();
         }

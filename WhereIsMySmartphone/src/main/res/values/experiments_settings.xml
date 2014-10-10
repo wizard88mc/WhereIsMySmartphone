@@ -47,6 +47,7 @@
         <item>Scale giù</item>
         <item>Fermo</item>
         <item>Camminando</item>
+        <item>Seduto</item>
     </string-array>
 
     <string-array name="origins">

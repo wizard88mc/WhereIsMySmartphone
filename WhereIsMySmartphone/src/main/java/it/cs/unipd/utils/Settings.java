@@ -34,28 +34,31 @@ public class Settings {
     }
 
     public String getShoes() {
-        return this.shoes;
+        return this.shoes.replace(" ", "_").toUpperCase();
     }
 
     public String getHand() {
-        return this.hand;
+        return this.hand.toUpperCase();
     }
 
     public String getAction() {
-        return this.action;
+
+        return this.action.replace(" ", "_").toUpperCase();
     }
 
     public String getOrigin() {
-        return this.origin;
+
+        return this.origin.toUpperCase();
     }
 
     public String getDestination() {
-        return this.destination;
+
+        return this.destination.replace(" ", "_").toUpperCase();
     }
 
     @Override
     public String toString() {
-        return sex + "," + age + "," + height + "," + shoes + "," + hand + "," + action + "," +
-                origin + "," + destination;
+        return sex + "," + age + "," + height + "," + this.getShoes() + "," + this.getHand() + ","
+                + this.getAction() + "," + this.getOrigin() + "," + this.getDestination();
     }
 }
