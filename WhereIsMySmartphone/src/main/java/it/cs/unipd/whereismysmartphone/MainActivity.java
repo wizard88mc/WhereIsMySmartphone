@@ -10,6 +10,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Vibrator;
 import android.support.v7.app.ActionBarActivity;
+import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -18,31 +19,30 @@ import android.widget.ArrayAdapter;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import it.cs.unipd.utils.SenderTask;
 
-public class MainActivity extends ActionBarActivity
+public class MainActivity extends ActionBarActivity implements SenderTask.AsyncResponse
 {
     private Controller mController = null;
     private ProgressDialog dialog = null;
-    private static final String UPLOAD_SERVER_URI = "";
-    private int serverResponseCode = 0;
+    private File finalFileAccelerometer = null;
+    private File finalFileLinear = null;
+    private File finalFileSettings = null;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -89,7 +89,8 @@ public class MainActivity extends ActionBarActivity
 
     private void setAdapterForSpinner(Spinner spinner, int arrayResource) {
 
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getApplicationContext(), arrayResource, android.R.layout.simple_spinner_item);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(getApplicationContext(),
+                arrayResource, android.R.layout.simple_spinner_item);
         adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         spinner.setAdapter(adapter);
     }
@@ -123,8 +124,6 @@ public class MainActivity extends ActionBarActivity
 
     public void onBtnClick(final View view)
     {
-        Log.d("MAIN_ACTIVITY", "onBtnClick");
-
         final String sex = ((Spinner) findViewById(R.id.sex)).getSelectedItem().toString();
         final String age = ((Spinner) findViewById(R.id.age)).getSelectedItem().toString();
         final String height = ((Spinner) findViewById(R.id.height)).getSelectedItem().toString();
@@ -173,7 +172,11 @@ public class MainActivity extends ActionBarActivity
         });
     }
 
-    private void copyFile(InputStream in, OutputStream out) throws IOException {
+    private void copyFile(File src, File dst) throws IOException {
+
+        InputStream in = new FileInputStream(src);
+        OutputStream out = new FileOutputStream(dst);
+
         byte[] buffer = new byte[1024];
         int read;
         while((read = in.read(buffer)) != -1){
@@ -194,19 +197,19 @@ public class MainActivity extends ActionBarActivity
             File file=new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_ACCELEROMETER); // get private db reference
             if (!file.exists() || file.length()==0) throw new Exception("Empty DB");
             File destination = new File(getApplicationContext().getExternalFilesDir(null), output_name);
-            this.copyFile(new FileInputStream(file), new FileOutputStream(destination));
+            this.copyFile(file, destination);
             uris.add(Uri.fromFile(destination));
 
             file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_LINEAR);
             if (!file.exists() || file.length()==0) throw new Exception("Empty DB Linear");
             destination = new File(getExternalFilesDir(null), output_nameL);
-            this.copyFile(new FileInputStream(file), new FileOutputStream(destination));
+            this.copyFile(file, destination);
             uris.add(Uri.fromFile(destination));
 
             file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_SETTINGS_TRUNK);
             if (!file.exists() || file.length() == 0) throw new Exception("Empty Settings");
             destination = new File(getExternalFilesDir(null), output_nameS);
-            this.copyFile(new FileInputStream(file),new FileOutputStream(destination));
+            this.copyFile(file, destination);
             //file = this.getFileStreamPath(output_nameS);
             uris.add(Uri.fromFile(destination));
 
@@ -238,145 +241,67 @@ public class MainActivity extends ActionBarActivity
         v.vibrate(500);
     }
 
-    public int uploadFiles()
+    public void uploadFiles()
     {
-        HttpURLConnection conn;
-        DataOutputStream dos;
-        String lineEnd = "\r\n";
-        String twoHyphens = "--";
-        String boundary = "*****";
-        int bytesRead, bytesAvailable, bufferSize;
-        byte[] buffer;
-        int maxBufferSize = 1 * 1024 * 1024;
 
-        final String[] files = {Logger.BASE_FILE_NAME_ACCELEROMETER, Logger.BASE_FILE_NAME_LINEAR,
-                Logger.BASE_FILE_NAME_SETTINGS_TRUNK};
+        runOnUiThread(new Runnable() {
+            public void run() {
+                dialog = new ProgressDialog(MainActivity.this);
+                dialog.setIndeterminate(true);
+                dialog.setTitle(R.string.uploading);
+                dialog.setMessage(getResources().getString(R.string.please_wait));
+                dialog.show();
+            }
+        });
 
-        for (int i = 0; i < files.length; i++)
-        {
-            File sourceFile = new File(getExternalFilesDir(null), files[i]);
-            final int index = i;
-            if (!sourceFile.isFile()) {
+        String IMEI = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 
-                dialog.dismiss();
+        Calendar cal = Calendar.getInstance();
+        String calendar = String.valueOf(cal.get(Calendar.YEAR)) + cal.get(Calendar.MONTH) + cal.get(Calendar.DAY_OF_MONTH)
+                + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) +
+                cal.get(Calendar.MILLISECOND);
 
-                runOnUiThread(new Runnable() {
-                    public void run() {
-                        Toast.makeText(MainActivity.this, "Source File does not exists: " + files[index],
-                                Toast.LENGTH_LONG);
-                    }
-                });
+        finalFileAccelerometer = new File(getExternalFilesDir(null), IMEI
+                + "_WhereIsMySmartphoneAccelerometer_" + calendar + ".csv");
+        finalFileLinear = new File(getExternalFilesDir(null), IMEI + "_WhereIsMySmartphoneLinear_"
+                + calendar + ".csv");
+        finalFileSettings = new File(getExternalFilesDir(null), IMEI + "_WhereIsMySmartphoneSettings_"
+                + calendar + ".csv");
 
-                return 0;
+        try {
+            copyFile(mController.logger.getFileAccelerometer(), finalFileAccelerometer);
+            copyFile(mController.logger.getFileLinear(), finalFileLinear);
+            copyFile(mController.logger.getFileSettings(), finalFileSettings);
 
-            } else {
-                try {
+            SenderTask task = new SenderTask();
+            task.delegate = this;
 
-                    // open a URL connection to the Servlet
-                    FileInputStream fileInputStream = new FileInputStream(sourceFile);
-                    URL url = new URL(UPLOAD_SERVER_URI);
-
-                    // Open a HTTP  connection to  the URL
-                    conn = (HttpURLConnection) url.openConnection();
-                    conn.setDoInput(true); // Allow Inputs
-                    conn.setDoOutput(true); // Allow Outputs
-                    conn.setUseCaches(false); // Don't use a Cached Copy
-                    conn.setRequestMethod("POST");
-                    conn.setRequestProperty("Connection", "Keep-Alive");
-                    conn.setRequestProperty("ENCTYPE", "multipart/form-data");
-                    conn.setRequestProperty("Content-Type", "multipart/form-data;boundary=" + boundary);
-                    conn.setRequestProperty("uploaded_file", files[i]);
-
-                    dos = new DataOutputStream(conn.getOutputStream());
-
-                    dos.writeBytes(twoHyphens + boundary + lineEnd);
-                    dos.writeBytes("Content-Disposition: form-data; name=\"uploaded_file\";filename=\""
-                            + files[i] + "\"" + lineEnd);
-                    dos.writeBytes(lineEnd);
-
-                    // create a buffer of  maximum size
-                    bytesAvailable = fileInputStream.available();
-
-                    bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                    buffer = new byte[bufferSize];
-
-                    // read file and write it into form...
-                    bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    while (bytesRead > 0) {
-
-                        dos.write(buffer, 0, bufferSize);
-                        bytesAvailable = fileInputStream.available();
-                        bufferSize = Math.min(bytesAvailable, maxBufferSize);
-                        bytesRead = fileInputStream.read(buffer, 0, bufferSize);
-
-                    }
-
-                    // send multipart form data necesssary after file data...
-                    dos.writeBytes(lineEnd);
-                    dos.writeBytes(twoHyphens + boundary + twoHyphens + lineEnd);
-
-                    // Responses from the server (code and message)
-                    serverResponseCode = conn.getResponseCode();
-                    String serverResponseMessage = conn.getResponseMessage();
-
-                    Log.i("uploadFile", "HTTP Response is : "
-                            + serverResponseMessage + ": " + serverResponseCode);
-
-                    if (serverResponseCode == 200) {
-
-                        runOnUiThread(new Runnable() {
-                            public void run() {
-
-                                String msg = "File Upload Completed.\n\n See uploaded file here : \n\n"
-                                        + " http://www.androidexample.com/media/uploads/"
-                                        + files[0];
-
-                                Toast.makeText(MainActivity.this, "File Upload Complete.",
-                                        Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                    //close the streams //
-                    fileInputStream.close();
-                    dos.flush();
-                    dos.close();
-
-                } catch (MalformedURLException ex) {
-
-                    dialog.dismiss();
-                    ex.printStackTrace();
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Log.d("EXCEPTION_UPLOAD", "MalformedURLException Exception : check script url.");
-                            Toast.makeText(MainActivity.this, "MalformedURLException",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-
-                    Log.e("Upload file to server", "error: " + ex.getMessage(), ex);
-                } catch (Exception e) {
-
-                    dialog.dismiss();
-                    e.printStackTrace();
-
-                    runOnUiThread(new Runnable() {
-                        public void run() {
-                            Toast.makeText(MainActivity.this, "Got Exception : see logcat ",
-                                    Toast.LENGTH_SHORT).show();
-                        }
-                    });
-                    Log.e("Upload file to server Exception", "Exception : "
-                            + e.getMessage(), e);
-                }
-                dialog.dismiss();
-                return serverResponseCode;
-
-            } // End else block
+            task.execute(finalFileAccelerometer, finalFileLinear, finalFileSettings);
         }
-        return 0;
+        catch(Exception exc)
+        {
+            Toast.makeText(this, "Unable to store and save file. Please try with email.", Toast.LENGTH_SHORT)
+                    .show();
+            exc.printStackTrace();
+        }
+    }
+
+    @Override
+    public void uploadCompleted(Integer result) {
+        finalFileSettings.delete();
+        finalFileLinear.delete();
+        finalFileSettings.delete();
+
+        dialog.dismiss();
+
+        if (result == 1)
+        {
+           Toast.makeText(this, "File upload completed. Thank you.", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+            Toast.makeText(this, "File NOT uploaded. Please try again.", Toast.LENGTH_SHORT).show();
+        }
     }
 }
 

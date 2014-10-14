@@ -111,7 +111,7 @@ public class Logger implements MediaScannerConnection.OnScanCompletedListener
                     + "," + light + "," + maxLight + "," + pressure + "," + maxPressure + ","
                     + relativeHumidity + "," + maxRelativeHumidity + ")\n").getBytes());
 
-            Log.d("LOGGER", "writing data accelerometer");
+            //Log.d("LOGGER", "writing data accelerometer");
         }
         catch(Exception exc)
         {
@@ -181,6 +181,21 @@ public class Logger implements MediaScannerConnection.OnScanCompletedListener
         fileAccelerometer.delete();
         fileLinear.delete();
         fileSettings.delete();
+    }
+
+    public File getFileAccelerometer()
+    {
+        return this.fileAccelerometer;
+    }
+
+    public File getFileLinear()
+    {
+        return this.fileLinear;
+    }
+
+    public File getFileSettings()
+    {
+        return this.fileSettings;
     }
 
 }

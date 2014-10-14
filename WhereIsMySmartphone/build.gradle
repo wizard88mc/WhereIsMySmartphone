@@ -24,4 +24,5 @@ dependencies {
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.android.support:appcompat-v7:19.+'
     compile 'com.android.support:appcompat-v7:19.+'
+    compile files('/Users/matteo/AndroidStudioProjects/WhereIsMySmartphone/ftp4j-1.7.2/ftp4j-1.7.2.jar')
 }

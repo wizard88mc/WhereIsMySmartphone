@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
 
+import java.io.File;
+
 import it.cs.unipd.utils.Settings;
 
 /**
@@ -25,7 +27,7 @@ public class Controller
     public Sensor mGravitySensor = null;
     public Sensor mRelativeHumidity = null;
 
-    private Logger logger = null;
+    public Logger logger = null;
 
     private SensorListener mSensorListener = null;
 
@@ -168,7 +170,12 @@ public class Controller
 
     public void deleteFiles()
     {
-
         logger.deleteFiles();
+    }
+
+    public File[] getAllFiles()
+    {
+        File[] files = {logger.getFileAccelerometer(), logger.getFileLinear(), logger.getFileSettings()};
+        return files;
     }
 }

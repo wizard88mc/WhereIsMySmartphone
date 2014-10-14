@@ -2,16 +2,10 @@
 <pre-dex-items>
 
     <item
-        dex="C:\Users\Matteo\AndroidStudioProjects\WhereIsMySmartphone\WhereIsMySmartphone\build\intermediates\pre-dexed\debug\classes-c795b6d92ae5c7a56bed84480d6f37b8ff8f0e04.jar"
-        jar="C:\Users\Matteo\AndroidStudioProjects\WhereIsMySmartphone\WhereIsMySmartphone\build\intermediates\exploded-aar\com.android.support\appcompat-v7\19.1.0\classes.jar"
+        dex="/Users/matteo/AndroidStudioProjects/WhereIsMySmartphone/WhereIsMySmartphone/build/intermediates/pre-dexed/debug/ftp4j-1.7.2-dd9dd49e5390c70c959be4fb1742882ad480b49c.jar"
+        jar="/Users/matteo/AndroidStudioProjects/WhereIsMySmartphone/ftp4j-1.7.2/ftp4j-1.7.2.jar"
         jumboMode="false"
         revision="19.1.0"
-        sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28"/>
-    <item
-        dex="C:\Users\Matteo\AndroidStudioProjects\WhereIsMySmartphone\WhereIsMySmartphone\build\intermediates\pre-dexed\debug\support-v4-19.1.0-b3d00e020f81e46389211b449f8b2cf8576d9a17.jar"
-        jar="C:\Users\Matteo\AppData\Local\Android\android-studio\sdk\extras\android\m2repository\com\android\support\support-v4\19.1.0\support-v4-19.1.0.jar"
-        jumboMode="false"
-        revision="19.1.0"
-        sha1="85f201b380937e61a9dce6ca90ccf6872abbfb67"/>
+        sha1="abd6a2ba75b142926052c4538611efda49e0b0e2"/>
 
 </pre-dex-items>
