@@ -172,10 +172,4 @@ public class Controller
     {
         logger.deleteFiles();
     }
-
-    public File[] getAllFiles()
-    {
-        File[] files = {logger.getFileAccelerometer(), logger.getFileLinear(), logger.getFileSettings()};
-        return files;
-    }
 }

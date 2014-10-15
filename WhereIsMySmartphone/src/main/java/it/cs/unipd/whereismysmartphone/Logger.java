@@ -35,9 +35,9 @@ public class Logger implements MediaScannerConnection.OnScanCompletedListener
     public Logger(Context context)
     {
         this.context = context;
-        fileAccelerometer = new File(context.getExternalFilesDir(null), BASE_FILE_NAME_ACCELEROMETER);
-        fileLinear = new File(context.getExternalFilesDir(null), BASE_FILE_NAME_LINEAR);
-        fileSettings = new File(context.getExternalFilesDir(null), BASE_FILE_NAME_SETTINGS_TRUNK);
+        fileAccelerometer = new File(context.getFilesDir(), BASE_FILE_NAME_ACCELEROMETER);
+        fileLinear = new File(context.getFilesDir(), BASE_FILE_NAME_LINEAR);
+        fileSettings = new File(context.getFilesDir(), BASE_FILE_NAME_SETTINGS_TRUNK);
         try {
             if (!fileAccelerometer.exists())
             {

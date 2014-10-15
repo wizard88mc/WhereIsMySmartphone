@@ -111,10 +111,6 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
             clearDb();
             return true;
         }
-        else if (id == R.id.action_send_db) {
-            shareDb();
-            return true;
-        }
         else if (id == R.id.action_upload_db) {
             uploadFiles();
             return true;
@@ -179,57 +175,14 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
 
         byte[] buffer = new byte[1024];
         int read;
-        while((read = in.read(buffer)) != -1){
+        while ((read = in.read(buffer)) != -1) {
             out.write(buffer, 0, read);
-        }
-    }
-
-    private void shareDb() {
-        SimpleDateFormat df=new SimpleDateFormat("yyyyMMddHHmmss");
-        String output_name="whereismysmartphoneAcc_"+df.format(new Date())+".csv";
-        String output_nameL = "whereismysmartphoneLin_"+df.format(new Date())+".csv";
-        String output_nameS = "whereismysmartphoneSettings_"+df.format(new Date())+".csv";
-        try {
-
-            Intent i=new Intent(Intent.ACTION_SEND_MULTIPLE);
-            ArrayList<Uri> uris = new ArrayList<Uri>();
-
-            File file=new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_ACCELEROMETER); // get private db reference
-            if (!file.exists() || file.length()==0) throw new Exception("Empty DB");
-            File destination = new File(getApplicationContext().getExternalFilesDir(null), output_name);
-            this.copyFile(file, destination);
-            uris.add(Uri.fromFile(destination));
-
-            file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_LINEAR);
-            if (!file.exists() || file.length()==0) throw new Exception("Empty DB Linear");
-            destination = new File(getExternalFilesDir(null), output_nameL);
-            this.copyFile(file, destination);
-            uris.add(Uri.fromFile(destination));
-
-            file = new File(getExternalFilesDir(null), Logger.BASE_FILE_NAME_SETTINGS_TRUNK);
-            if (!file.exists() || file.length() == 0) throw new Exception("Empty Settings");
-            destination = new File(getExternalFilesDir(null), output_nameS);
-            this.copyFile(file, destination);
-            //file = this.getFileStreamPath(output_nameS);
-            uris.add(Uri.fromFile(destination));
-
-            i.putExtra(Intent.EXTRA_STREAM, uris);
-            //i.putExtra(Intent.EXTRA_EMAIL, new String[]{"whereismysmartphone.math.unipd@gmail.com"});
-            i.putExtra(Intent.EXTRA_EMAIL, new String[]{"wizard88mc@gmail.com"});
-            i.putExtra(Intent.EXTRA_SUBJECT, "New WhereIsMySmartphone Database");
-
-            i.putExtra(Intent.EXTRA_TEXT, "Here is a new Database of data. Thanks to me.");
-            i.setType("plain/text");
-            startActivity(Intent.createChooser(i, "Share to"));
-        } catch (Exception e) {
-            Toast.makeText(getApplicationContext(), "Unable to export db: " + e.getMessage(), Toast.LENGTH_SHORT).show();
-            Log.e("MAIN_ACTIVITY", e.getMessage());
         }
     }
 
     public void clearDb() {
         mController.deleteFiles();
-        Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_SHORT).show();
+        Toast.makeText(getApplicationContext(), "Database cleared", Toast.LENGTH_LONG).show();
     }
 
     private void playSoundAndVibrate() {
@@ -247,9 +200,11 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
         runOnUiThread(new Runnable() {
             public void run() {
                 dialog = new ProgressDialog(MainActivity.this);
-                dialog.setIndeterminate(true);
                 dialog.setTitle(R.string.uploading);
-                dialog.setMessage(getResources().getString(R.string.please_wait));
+                dialog.setMax(100);
+                dialog.setCancelable(false);
+                dialog.setCanceledOnTouchOutside(false);
+                dialog.setProgressStyle(ProgressDialog.STYLE_HORIZONTAL);
                 dialog.show();
             }
         });
@@ -257,15 +212,16 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
         String IMEI = ((TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE)).getDeviceId();
 
         Calendar cal = Calendar.getInstance();
-        String calendar = String.valueOf(cal.get(Calendar.YEAR)) + cal.get(Calendar.MONTH) + cal.get(Calendar.DAY_OF_MONTH)
+        String calendar = String.valueOf(cal.get(Calendar.YEAR)) + (cal.get(Calendar.MONTH) +1)
+                + cal.get(Calendar.DAY_OF_MONTH)
                 + cal.get(Calendar.HOUR) + cal.get(Calendar.MINUTE) + cal.get(Calendar.SECOND) +
                 cal.get(Calendar.MILLISECOND);
 
-        finalFileAccelerometer = new File(getExternalFilesDir(null), IMEI
+        finalFileAccelerometer = new File(getFilesDir(), IMEI
                 + "_WhereIsMySmartphoneAccelerometer_" + calendar + ".csv");
-        finalFileLinear = new File(getExternalFilesDir(null), IMEI + "_WhereIsMySmartphoneLinear_"
+        finalFileLinear = new File(getFilesDir(), IMEI + "_WhereIsMySmartphoneLinear_"
                 + calendar + ".csv");
-        finalFileSettings = new File(getExternalFilesDir(null), IMEI + "_WhereIsMySmartphoneSettings_"
+        finalFileSettings = new File(getFilesDir(), IMEI + "_WhereIsMySmartphoneSettings_"
                 + calendar + ".csv");
 
         try {
@@ -280,14 +236,15 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
         }
         catch(Exception exc)
         {
-            Toast.makeText(this, "Unable to store and save file. Please try with email.", Toast.LENGTH_SHORT)
-                    .show();
+            Toast.makeText(this, "Unable to store and save file. Please try with email.",
+                    Toast.LENGTH_SHORT).show();
             exc.printStackTrace();
         }
     }
 
     @Override
-    public void uploadCompleted(Integer result) {
+    public void uploadCompleted(Integer result)
+    {
         finalFileSettings.delete();
         finalFileLinear.delete();
         finalFileSettings.delete();
@@ -296,12 +253,19 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
 
         if (result == 1)
         {
-           Toast.makeText(this, "File upload completed. Thank you.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Files upload completed. Thank you.", Toast.LENGTH_LONG).show();
+            clearDb();
         }
-        else
+        else if (result == -1 || result == 0)
         {
-            Toast.makeText(this, "File NOT uploaded. Please try again.", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "Files NOT uploaded. Please try again.", Toast.LENGTH_LONG).show();
         }
+    }
+
+    @Override
+    public void updateProgressBar(int percentage)
+    {
+        dialog.setProgress(percentage);
     }
 }
 

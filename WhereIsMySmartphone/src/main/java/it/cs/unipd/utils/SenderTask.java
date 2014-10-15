@@ -18,6 +18,7 @@ public class SenderTask extends AsyncTask<File, Void, Integer>
 
     public interface AsyncResponse {
         public void uploadCompleted(Integer result);
+        public void updateProgressBar(int percentage);
     }
 
     public AsyncResponse delegate = null;
@@ -26,53 +27,57 @@ public class SenderTask extends AsyncTask<File, Void, Integer>
     private static final String USERNAME = "matteo";
     private static final String PASSWORD = "mcIman47!";
 
+    private long totalSizeToSend = 0;
+    private long totalSizeSent = 0;
+    private int totalFilesToSend = 0;
+    private int totalFilesSent = 0;
+
     @Override
     protected Integer doInBackground(File... params)
     {
+        totalFilesToSend = params.length;
 
-        int counter = 0;
         for (int i = 0; i < params.length; i++)
         {
-            if (!params[i].isFile()) {
-
-                return 0;
-
-            }
-            else {
-
-                FTPClient client = new FTPClient();
-
-                try {
-
-                    client.connect(UPLOAD_SERVER_URI, 21);
-                    client.login(USERNAME, PASSWORD);
-                    client.setType(FTPClient.TYPE_TEXTUAL);
-                    client.changeDirectory("whereismysmartphone");
-
-                    client.upload(params[i], new MyTransferListener());
-                    counter++;
-                }
-                catch(Exception exc)
-                {
-                    exc.printStackTrace();
-                    try {
-                        client.disconnect(true);
-                    }
-                    catch(Exception exc1) {
-                        exc1.printStackTrace();
-                    }
-                }
-            } // End else block
+            totalSizeToSend += params[i].length();
         }
-        return counter;
+
+        FTPClient client = new FTPClient();
+
+        try {
+
+            client.connect(UPLOAD_SERVER_URI, 21);
+            client.login(USERNAME, PASSWORD);
+            client.setType(FTPClient.TYPE_TEXTUAL);
+            client.changeDirectory("whereismysmartphone");
+
+            for (int i = 0; i < params.length; i++)
+            {
+                client.upload(params[i], new MyTransferListener());
+            }
+
+            client.disconnect(true);
+        }
+        catch(Exception exc)
+        {
+            return -1;
+        }
+        return 1;
     }
 
     @Override
-    protected void onPostExecute(Integer updatedFiles)
+    protected void onPostExecute(Integer finalResult)
     {
-        if (updatedFiles ==  3)
+        if (finalResult != -1)
         {
-            delegate.uploadCompleted(1);
+            if (totalFilesSent == totalFilesToSend)
+            {
+                delegate.uploadCompleted(1);
+            }
+            else
+            {
+                delegate.uploadCompleted(0);
+            }
         }
         else
         {
@@ -88,22 +93,27 @@ public class SenderTask extends AsyncTask<File, Void, Integer>
         }
 
         @Override
-        public void transferred(int i) {
-            Log.d("TRANSFERRED", String.valueOf(i));
+        public void transferred(int i)
+        {
+            totalSizeSent += i;
+            delegate.updateProgressBar((int) (totalSizeSent * 100 / totalSizeToSend));
         }
 
         @Override
-        public void completed() {
-            Log.d("COMPLETED", "COMPLETED");
+        public void completed()
+        {
+            totalFilesSent++;
         }
 
         @Override
-        public void aborted() {
+        public void aborted()
+        {
             Log.d("MyTransferListener", "aborted");
         }
 
         @Override
-        public void failed() {
+        public void failed()
+        {
             Log.d("MyTransferListener", "failed");
         }
     }
