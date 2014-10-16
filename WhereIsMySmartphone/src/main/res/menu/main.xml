@@ -7,5 +7,5 @@
         app:showAsAction="never"/>
 
     <item android:id="@+id/action_upload_db"
-        android:title="Upload DB" />
+        android:title="Invia DB" />
 </menu>
