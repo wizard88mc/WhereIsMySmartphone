@@ -49,6 +49,8 @@ public class MainActivity extends ActionBarActivity implements SenderTask.AsyncR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        System.setProperty("ftp4j.activeDataTransfer.acceptTimeout", "0");
+
         SharedPreferences preferences = getPreferences(0);
 
         setAdapterForSpinner((Spinner)findViewById(R.id.sex), R.array.sex);
