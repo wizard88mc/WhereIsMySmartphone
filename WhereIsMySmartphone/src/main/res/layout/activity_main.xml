@@ -15,7 +15,7 @@
         android:orientation="horizontal">
 
         <TextView
-            android:text="Sesso"
+            android:text="@string/sex"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content" />
 
@@ -33,7 +33,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Età"/>
+            android:text="@string/age"/>
 
         <Spinner
             android:id="@+id/age"
@@ -50,7 +50,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Altezza"/>
+            android:text="@string/height"/>
 
         <Spinner
             android:id="@+id/height"
@@ -67,7 +67,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Scarpe"/>
+            android:text="@string/shoes"/>
 
         <Spinner
             android:id="@+id/shoes"
@@ -84,7 +84,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Mano"/>
+            android:text="@string/hand"/>
 
         <Spinner
             android:id="@+id/hand"
@@ -101,7 +101,7 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Azione corrente: "/>
+            android:text="@string/current_activity"/>
 
         <Spinner
             android:id="@+id/action"
@@ -119,7 +119,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Origine: "/>
+            android:text="@string/origin"/>
 
         <Spinner
             android:id="@+id/origin"
@@ -136,7 +136,7 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="Destinazione: "/>
+            android:text="@string/destination"/>
 
         <Spinner
             android:id="@+id/destination"
@@ -150,6 +150,6 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
-        android:text="Registra dati"
+        android:text="@string/record_data"
         android:onClick="onBtnClick"/>
 </LinearLayout>

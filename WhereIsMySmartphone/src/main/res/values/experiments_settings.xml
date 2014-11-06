@@ -37,32 +37,32 @@
     </string-array>
 
     <string-array name="hand">
-        <item>Destra</item>
-        <item>Sinistra</item>
+        <item>@string/right</item>
+        <item>@string/left</item>
     </string-array>
 
     <string-array name="actions">
-        <item>Scale su</item>
-        <item>Scale giù</item>
-        <item>Fermo</item>
-        <item>Camminando</item>
-        <item>Seduto</item>
+        <item>@string/sitting</item>
+        <item>@string/standing</item>
+        <item>@string/walking</item>
+        <item>@string/stairs_up</item>
+        <item>@string/stairs_down</item>
     </string-array>
 
     <string-array name="origins">
-        <item>Mano</item>
-        <item>Chiamata</item>
+        <item>@string/hand</item>
+        <item>@string/call</item>
     </string-array>
 
     <string-array name="destinations">
-        <item>Tasca destra davanti pantaloni</item>
-        <item>Tasca destra dietro pantaloni</item>
-        <item>Tasca sinistra davanti pantaloni</item>
-        <item>Tasca sinistra dietro pantaloni</item>
-        <item>Tasca giacca bassa</item>
-        <item>Tasca giacca alta</item>
-        <item>Borsa</item>
-        <item>Marsupio</item>
-        <item>Zaino</item>
+        <item>@string/right_front_pocket</item>
+        <item>@string/right_back_pocket</item>
+        <item>@string/left_front_pocket</item>
+        <item>@string/left_back_pocket</item>
+        <item>@string/bottom_jacket</item>
+        <item>@string/top_jacket</item>
+        <item>@string/bag</item>
+        <item>@string/fanny_pack</item>
+        <item>@string/backpack</item>
     </string-array>
 </resources>

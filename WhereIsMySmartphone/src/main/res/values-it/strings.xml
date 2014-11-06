@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="sex">Sesso</string>
+    <string name="age">Età</string>
+    <string name="height">Altezza</string>
+    <string name="shoes">Scarpe</string>
+    <string name="hand">Mano</string>
+    <string name="current_activity">Attività corrente</string>
+    <string name="origin">Origine</string>
+    <string name="destination">Destinazione</string>
+    <string name="record_data">Registra dati</string>
+
+    <string name="left">Sinistra</string>
+    <string name="right">Destra</string>
+
+    <string name="standing">Fermo</string>
+    <string name="sitting">Seduto</string>
+    <string name="walking">Camminando</string>
+    <string name="stairs_up">Scale su</string>
+    <string name="stairs_down">Scale giù</string>
+
+    <string name="call">Chiamata</string>
+
+    <string name="right_front_pocket">Tasca destra davanti pantaloni</string>
+    <string name="right_back_pocket">Tasca destra dietro pantaloni</string>
+    <string name="left_front_pocket">Tasca sinistra davanti pantaloni</string>
+    <string name="left_back_pocket">Tasca sinistra dietro pantaloni</string>
+    <string name="bottom_jacket">Tasca giacca bassa</string>
+    <string name="top_jacket">Tasca giacca alta</string>
+    <string name="bag">Borsa</string>
+    <string name="fanny_pack">Marsupio</string>
+    <string name="backpack">Zaino</string>
+
+</resources>
