@@ -32,8 +32,8 @@
     </string-array>
 
     <string-array name="shoes">
-        <item>Normali</item>
-        <item>Con tacco</item>
+        <item>@string/normal</item>
+        <item>@string/heel</item>
     </string-array>
 
     <string-array name="hand">

@@ -26,6 +26,9 @@
 
     <string name="call">Call</string>
 
+    <string name="normal">Normal</string>
+    <string name="heel">With heel</string>
+
     <string name="right_front_pocket">Right front pocket</string>
     <string name="right_back_pocket">Right back pocket</string>
     <string name="left_front_pocket">Left front pocket</string>

@@ -39,7 +39,7 @@ public class SensorListener implements SensorEventListener
     {
         if (event.sensor == mController.mAccelerometer)
         {
-            final float[] values = event.values; final float timestamp = event.timestamp;
+            final float[] values = event.values; final long timestamp = event.timestamp;
 
             new Thread() {
 
@@ -68,7 +68,7 @@ public class SensorListener implements SensorEventListener
         }
         else if (event.sensor == mController.mLinearSensor)
         {
-            final float[] values = event.values; final float timestamp = event.timestamp;
+            final float[] values = event.values; final long timestamp = event.timestamp;
 
             new Thread() {
 

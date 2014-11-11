@@ -95,7 +95,7 @@ public class Logger implements MediaScannerConnection.OnScanCompletedListener
         }
     }
 
-    public void saveRecordAccelerometer(float timestamp, int proximity, float x, float y, float z,
+    public void saveRecordAccelerometer(long timestamp, int proximity, float x, float y, float z,
         float rotationX, float rotationY, float rotationZ, Float gravityX, Float gravityY,
         Float gravityZ, Float gyroscopeX, Float gyroscopeY, Float gyroscopeZ, Float magneticFieldX,
         Float magneticFieldY, Float magneticFieldZ, Float ambientTemperature, Float maxAmbientTemperature,
@@ -120,7 +120,7 @@ public class Logger implements MediaScannerConnection.OnScanCompletedListener
         }
     }
 
-    public void saveRecordLinear(float timestamp, int proximity, float x, float y, float z,
+    public void saveRecordLinear(long timestamp, int proximity, float x, float y, float z,
         float rotationX, float rotationY, float rotationZ, Float gravityX, Float gravityY,
         Float gravityZ, Float gyroscopeX, Float gyroscopeY, Float gyroscopeZ, Float magneticFieldX,
         Float magneticFieldY, Float magneticFieldZ, Float ambientTemperature, Float maxAmbientTemperature,

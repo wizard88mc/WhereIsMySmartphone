@@ -22,6 +22,9 @@
 
     <string name="call">Chiamata</string>
 
+    <string name="normal">Normali</string>
+    <string name="heel">Con tacco</string>
+
     <string name="right_front_pocket">Tasca destra davanti pantaloni</string>
     <string name="right_back_pocket">Tasca destra dietro pantaloni</string>
     <string name="left_front_pocket">Tasca sinistra davanti pantaloni</string>
