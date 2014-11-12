@@ -38,4 +38,7 @@
     <string name="bag">Bag</string>
     <string name="fanny_pack">Fanny pack</string>
     <string name="backpack">Backpack</string>
+
+    <string name="delete_db">Delete DB</string>
+    <string name="upload_db">Upload DB</string>
 </resources>

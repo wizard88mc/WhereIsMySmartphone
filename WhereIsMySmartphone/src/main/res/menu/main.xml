@@ -3,9 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     tools:context=".MainActivity" >
     <item android:id="@+id/action_clearDb"
-        android:title="Cancella DB"
+        android:title="@string/delete_db"
         app:showAsAction="never"/>
 
     <item android:id="@+id/action_upload_db"
-        android:title="Invia DB" />
+        android:title="@string/upload_db" />
 </menu>

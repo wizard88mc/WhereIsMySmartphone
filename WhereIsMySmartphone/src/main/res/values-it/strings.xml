@@ -35,4 +35,6 @@
     <string name="fanny_pack">Marsupio</string>
     <string name="backpack">Zaino</string>
 
+    <string name="delete_db">Cancella DB</string>
+    <string name="upload_db">Invia DB</string>
 </resources>
